@@ -195,7 +195,7 @@ org.openhab.binding.sunsynk-4.2.0-SNAPSHOT
 ```
 Although the binding is written to find multiple Inverters for each Sun Synk Connect account, testing has been against an account with a single inverter.
 
-- Sun Synk account  and inverter  versions are:
+Sun Synk account  and inverter  versions are:
 - Gateway Model EESW-D205
 - Gateway COMM Type Wi-Fi
 - Gateway HW AEW2-0005-03
