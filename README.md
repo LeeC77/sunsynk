@@ -236,3 +236,7 @@ Log on to your local openHAB as admin and follow the menus.
 - Scroll down to find the binding and click on its title, click the cog and select the level "Debug" on the right.
 
 You should now be able to see debug data in the `openhab.log`.
+
+# Source Code
+
+For those that are interested the source code is [here.](https://github.com/LeeC77/openhab-addons/tree/sunsynk/bundles/org.openhab.binding.sunsynk)
