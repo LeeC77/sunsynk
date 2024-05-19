@@ -7,7 +7,7 @@ This binding is used to connect your openHAB system with Sun Synk Connect (where
 
 ## Introduction
 
-You will require to have installed a Sun Synk inverter with a WiFi Data logger [e-linter](https://www.e-linter.com/) connected to the Sun Synk App or Connect. See [Data Logger set up](https://www.sunsynk.org/_files/ugd/39fbfb_a325b6884e684c4ba1a3ad80afd5da20.pdf) or [Sun Synk Web](https://www.sunsynk.org/remote-monitoring).
+You will require to have installed a Sun Synk inverter with a WiFi Data logger [e-linter](https://www.e-linter.com/) connected to the Sun Synk App or Connect. See [Data Logger set up](https://www.sunsynk.org/_files/ugd/39fbfb_a325b6884e684c4ba1a3ad80afd5da20.pdf) or [Sun Synk Web](https://www.sunsynk.org/remote-monitoring). It is recommended, but not  necessary that the "data interval" of your Gateway is set via Sun Synk Connect to 60s for best time latency. If you do not have that setting avaailable you can request it set via Sun Synk or your installer or you can ask for an [User Level Access Change Request](https://www.sunsynk.org/remote-monitoring)
 
 This binding uses your Sun Synk Connect credentials to access Sun Synk's web services via an OpenHAB Bridge (SunSynk Account). The bridge manages the account authentication and the discovery of SunSynk Inverter and Plant Things. Only the Inverter Thing is currently supported.
 
@@ -19,10 +19,9 @@ Acknowledgements:
 
 ## Supported Things
 
-The supported Thing Types are
 |Name            | Thing type    | Supported Thing |
 |----------------|---------------|-----------------|
-|SunSynk Account | Bridge Thing  | sunsynkaccount  |
+|SunSynk Account | Bridge Thing  | account         |
 |SunSynk Inverter| Thing         | inverter        |
 |SunSynk Plant   | Thing         | (TO DO)         |
 
@@ -38,96 +37,93 @@ When using the UI Scan service all the parameters for an Inverter Thing are disc
 
 - Inverter Serial maps to the Sun Synk Connect inverter serial number
 - Inverter Name maps to the Sun Synk Connect inverter alias
-- Refresh time (advanced) default 60s and determines the intervals between polls of Sun Synk Connect. A value above 60 is enforced.
+- Refresh time (advanced) default 60s; determines the interval between polls of Sun Synk Connect. A value above 60 is enforced. When setting this remember your inverter values are only published to Sun Synk Connect at the rate set by "data interval".
 
-The refresh rate is limited to once every 60s to prevent to many requests from the Sun Synk Connect API, although there is no rate limit, the Sun Synk data is fully refreshed on their server about every 60s. This can mean the data in openHAB is more than 1 minute delayed from real-time. Commands sent (from openHAB) to Sun Synk are buffered up until the next refresh interval and as they take a while to propagate through to your inverter, some channel are not refreshed (read back) from Sun Synk Connect until the next minute. 
+The refresh rate is limited to once every 60s to prevent to many requests from the Sun Synk Connect API, although there is no rate limit, the Sun Synk data is fully refreshed at the "data interval" set in Sun Synk Connect, at best that is every 60s. This can mean the data in openHAB is more than 1 minute delayed from real-time. Commands sent (from openHAB) to Sun Synk are buffered up until the next refresh interval and as they take a while to propagate through to your inverter, some channels are not refreshed (read back) from Sun Synk Connect until the next minute. 
 
 The SunSynk Account requires the user e-mail address and password used to login to Sun Synk Connect.
 
-- The bridge Thing UID is of the form sunsynk:sunsynkaccout:abcdef1234
+- The bridge Thing UID is of the form sunsynk:account:abcdef1234
 - The inverter Thing UID is of the form sunsynk:inverter:abcdef1234:\<gateway serial\>\<inverter serial\>
 
-where \<gateway  serial\> and \<inverter serial\> are discovered from Sun Synk Connect
+where \<gateway  serial\> and \<inverter serial\> are discovered from Sun Synk Connect.
 
 ## Thing Configuration
-
 ### `sunsynkaccount` Bridge Thing Configuration
 
-| Name            | Type    | Description                                  | Default | Required | Advanced |
-|-----------------|---------|----------------------------------------------|---------|----------|----------|
-| email           | text    | Email address used to login Sun Synk Connect | N/A     | yes      | no       |
-| password        | text    | Password to access the device                | N/A     | yes      | no       |
+| Name            | Type    | Description                                     | Default | Required | Advanced |
+|-----------------|---------|-------------------------------------------------|---------|----------|----------|
+| email           | text    | Email address used to login Sun Synk Connect    | N/A     | yes      | no       |
+| password        | text    | Password to access the Sun Synk Connect account | N/A     | yes      | no       |
 
 ### `sunsynk:inverter:` Thing Configuration
 
-| Name    | Type    | Description                                  | Default | Required | Advanced |
-|---------|---------|----------------------------------------------|---------|----------|----------|
-| alias   | text    | The Sun Synk Connect inverter alias.         | N/A     | yes      | no       |
-| sn      | text    | The Sun Synk Connect inverter serial number. | N/A     | yes      | no       |
-| refresh | integer | Interval the device is polled in sec.        | 60      | yes      | yes      |
+| Name    | Type    | Description                                 | Default | Required | Advanced |
+|---------|---------|---------------------------------------------|---------|----------|----------|
+| alias   | text    | The Sun Synk Connect inverter alias         | N/A     | yes      | no       |
+| sn      | text    | The Sun Synk Connect inverter serial number | N/A     | yes      | no       |
+| refresh | integer | Interval the device is polled in sec        | 60      | yes      | yes      |
 
 ## Channels
 
 The SunSynkAccount has no channels.
-The SunSynk Inverter has the following  channels 
+The SunSynk Inverter has the following channels 
 
 | Channel                        | Type    | R/W | Description                       | Advanced |
 |--------------------------------|---------|-----|-----------------------------------|----------|
-|Battery-SOC                     |Number   | R   | Inverter battery % charge         | no       |
-|Battery-grid-voltage            |Number   | R   | Battery dc electric-voltage       | no       |
-|Battery-grid-current            |Number   | R   | Battery dc electric-current       | no       |
-|Battery-grid-power              |Number   | R   | Battery dc electric-power         | no       |
-|Battery-temperature             |Number   | R   | Battery temperature               | no       |
-|Inverter-ac-temperature         |Number   | R   | Inverter ac temperature           | no       |
-|Inverter-dc-temperature         |Number   | R   | Inverter dc temperature           | no       |
-|Inverter-grid-power             |Number   | R   | Inverter ac electric-power        | no       |
-|Inverter-grid-voltage           |Number   | R   | Inverter ac electric-voltage      | no       |
-|Inverter-grid-current           |Number   | R   | Inverter ac electric-current      | no       |
-|Inverter-solar-energy-today     |Number   | R   | Solar dc energy generated today   | no       |
-|Inverter-solar-energy-total     |Number   | R   | Solar dc energy generated to date | no       |
-|Inverter-solar-power-now        |Number   | R   | Solar dc electric-current         | no       |
-|Interval-1-grid-charge          |Switch   | R/W | Interval 1 grid charge on/off     | yes      |
-|Interval-1-grid-time            |DateTime | R/W | Interval 1 start grid charge time | yes      |
-|Interval-1-grid-capacity        |Number   | R/W | Interval 1 battery charge target  | yes      |
-|Interval-1-grid-power-limit     |Number   | R/W | Interval 1 charge power limit     | yes      |
-|Interval-2-grid-charge          |Switch   | R/W | Interval 2 grid charge on/off     | yes      |
-|Interval-2-grid-time            |DateTime | R/W | Interval 2 start grid charge time | yes      |
-|Interval-2-grid-capacity        |Number   | R/W | Interval 2 battery charge target  | yes      |
-|Interval-2-grid-power-limit     |Number   | R/W | Interval 2 charge power limit     | yes      |
-|Interval-3-grid-charge          |Switch   | R/W | Interval 3 grid charge on/off     | yes      |
-|Interval-3-grid-time            |DateTime | R/W | Interval 3 start grid charge time | yes      |
-|Interval-3-grid-capacity        |Number   | R/W | Interval 3 battery charge target  | yes      |
-|Interval-3-grid-power-limit     |Number   | R/W | Interval 3 charge power limit     | yes      |
-|Interval-4-grid-charge          |Switch   | R/W | Interval 4 grid charge on/off     | yes      |
-|Interval-4-grid-time            |DateTime | R/W | Interval 4 start grid charge time | yes      |
-|Interval-4-grid-capacity        |Number   | R/W | Interval 4 battery charge target  | yes      |
-|Interval-4-grid-power-limit     |Number   | R/W | Interval 4 charge power limit     | yes      |
-|Interval-5-grid-charge          |Switch   | R/W | Interval 5 grid charge on/off     | yes      |
-|Interval-5-grid-time            |DateTime | R/W | Interval 5 start grid charge time | yes      |
-|Interval-5-grid-capacity        |Number   | R/W | Interval 5 battery charge target  | yes      |
-|Interval-5-grid-power-limit     |Number   | R/W | Interval 5 charge power limit     | yes      |
-|Interval-6-grid-charge          |Switch   | R/W | Interval 6 grid charge on/off     | yes      |
-|Interval-6-grid-time            |DateTime | R/W | Interval 6 start grid charge time | yes      |
-|Interval-6-grid-capacity        |Number   | R/W | Interval 6 battery charge target  | yes      |
-|Interval-6-grid-power-limit     |Number   | R/W | Interval 6 charge power limit     | yes      |
-|Interval-1-gen-charge           |Number   | R/W | Interval 1 generator charge on/of | yes      |
-|Interval-2-gen-charge           |Switch   | R/W | Interval 2 generator charge on/of | yes      |
-|Interval-3-gen-charge           |Switch   | R/W | Interval 3 generator charge on/of | yes      |
-|Interval-4-gen-charge           |Switch   | R/W | Interval 4 generator charge on/of | yes      |
-|Interval-5-gen-charge           |Switch   | R/W | Interval 5 generator charge on/of | yes      |
-|Interval-6-gen-charge           |Switch   | R/W | Interval 6 generator charge on/of | yes      |
-|Inverter-control-timer          |Switch   | R/W | Inverter control timer on/off     | yes      |
-|Inverter-control-work-mode      |Number   | R/W | Inverter work mode 1, 2 or 3      | yes      |
-|Inverter-control-energy-pattern |Number   | R/W | Inverter energy pattern 1 or 2    | yes      |
+|battery-SOC                     |Number   | R   | Inverter battery % charge         | no       |
+|battery-grid-voltage            |Number   | R   | Battery dc electric-voltage       | no       |
+|battery-grid-current            |Number   | R   | Battery dc electric-current       | no       |
+|battery-grid-power              |Number   | R   | Battery dc electric-power         | no       |
+|battery-temperature             |Number   | R   | Battery temperature               | no       |
+|inverter-ac-temperature         |Number   | R   | Inverter ac temperature           | no       |
+|inverter-dc-temperature         |Number   | R   | Inverter dc temperature           | no       |
+|inverter-grid-power             |Number   | R   | Inverter ac electric-power        | no       |
+|inverter-grid-voltage           |Number   | R   | Inverter ac electric-voltage      | no       |
+|inverter-grid-current           |Number   | R   | Inverter ac electric-current      | no       |
+|inverter-solar-energy-today     |Number   | R   | Solar dc energy generated today   | no       |
+|inverter-solar-energy-total     |Number   | R   | Solar dc energy generated to date | no       |
+|inverter-solar-power-now        |Number   | R   | Solar dc electric-current         | no       |
+|interval-1-grid-charge          |Switch   | R/W | Interval 1 grid charge on/off     | yes      |
+|interval-1-grid-time            |DateTime | R/W | Interval 1 start grid charge time | yes      |
+|interval-1-grid-capacity        |Number   | R/W | Interval 1 battery charge target  | yes      |
+|interval-1-grid-power-limit     |Number   | R/W | Interval 1 charge power limit     | yes      |
+|interval-2-grid-charge          |Switch   | R/W | Interval 2 grid charge on/off     | yes      |
+|interval-2-grid-time            |DateTime | R/W | Interval 2 start grid charge time | yes      |
+|interval-2-grid-capacity        |Number   | R/W | Interval 2 battery charge target  | yes      |
+|interval-2-grid-power-limit     |Number   | R/W | Interval 2 charge power limit     | yes      |
+|interval-3-grid-charge          |Switch   | R/W | Interval 3 grid charge on/off     | yes      |
+|interval-3-grid-time            |DateTime | R/W | Interval 3 start grid charge time | yes      |
+|interval-3-grid-capacity        |Number   | R/W | Interval 3 battery charge target  | yes      |
+|interval-3-grid-power-limit     |Number   | R/W | Interval 3 charge power limit     | yes      |
+|interval-4-grid-charge          |Switch   | R/W | Interval 4 grid charge on/off     | yes      |
+|interval-4-grid-time            |DateTime | R/W | Interval 4 start grid charge time | yes      |
+|interval-4-grid-capacity        |Number   | R/W | Interval 4 battery charge target  | yes      |
+|interval-4-grid-power-limit     |Number   | R/W | Interval 4 charge power limit     | yes      |
+|interval-5-grid-charge          |Switch   | R/W | Interval 5 grid charge on/off     | yes      |
+|interval-5-grid-time            |DateTime | R/W | Interval 5 start grid charge time | yes      |
+|interval-5-grid-capacity        |Number   | R/W | Interval 5 battery charge target  | yes      |
+|interval-5-grid-power-limit     |Number   | R/W | Interval 5 charge power limit     | yes      |
+|interval-6-grid-charge          |Switch   | R/W | Interval 6 grid charge on/off     | yes      |
+|interval-6-grid-time            |DateTime | R/W | Interval 6 start grid charge time | yes      |
+|interval-6-grid-capacity        |Number   | R/W | Interval 6 battery charge target  | yes      |
+|interval-6-grid-power-limit     |Number   | R/W | Interval 6 charge power limit     | yes      |
+|interval-1-gen-charge           |Number   | R/W | Interval 1 generator charge on/of | yes      |
+|interval-2-gen-charge           |Switch   | R/W | Interval 2 generator charge on/of | yes      |
+|interval-3-gen-charge           |Switch   | R/W | Interval 3 generator charge on/of | yes      |
+|interval-4-gen-charge           |Switch   | R/W | Interval 4 generator charge on/of | yes      |
+|interval-5-gen-charge           |Switch   | R/W | Interval 5 generator charge on/of | yes      |
+|interval-6-gen-charge           |Switch   | R/W | Interval 6 generator charge on/of | yes      |
+|inverter-control-timer          |Switch   | R/W | Inverter control timer on/off     | yes      |
+|inverter-control-work-mode      |Number   | R/W | Inverter work mode 1, 2 or 3      | yes      |
+|inverter-control-energy-pattern |Number   | R/W | Inverter energy pattern 1 or 2    | yes      |
 
 ### Thing Configuration
 
 #### sunsynk.things
 
-From a `.things` file:
-
 ```java
-Bridge sunsynk:sunsynkaccount: xxx @ "Loft" [email= "user.symbol@domain.", password="somepassword"]{
+Bridge sunsynk:account: xxx @ "Loft" [email= "user.symbol@domain.", password="somepassword"]{
     Thing inverter E1234567R1231234567890 @ "Loft" [alias= "My Inverter", sn= "1234567890", refresh= 60]
 }
 ```
@@ -135,62 +131,61 @@ Bridge sunsynk:sunsynkaccount: xxx @ "Loft" [email= "user.symbol@domain.", passw
 ### Item Configuration
 
 #### sunsynk.items
-From an `.items` file:
 
 ```java
 
-Switch                      Interval1GridCharge         "Switch on Grid Charge for Interval 1"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-1-grid-charge"}
-Switch                      Interval2GridCharge         "Switch on Grid Charge for Interval 2"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-2-grid-charge"}
-Switch                      Interval3GridCharge         "Switch on Grid Charge for Interval 3"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-3-grid-charge"}
-Switch                      Interval4GridCharge         "Switch on Grid Charge for Interval 4"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-4-grid-charge"}
-Switch                      Interval5GridCharge         "Switch on Grid Charge for Interval 5"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-5-grid-charge"}
-Switch                      Interval6GridCharge         "Switch on Grid Charge for Interval 6"         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-6-grid-charge"}
+Switch                      Interval1GridCharge         "Switch on Grid Charge for Interval 1"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-1-grid-charge"}
+Switch                      Interval2GridCharge         "Switch on Grid Charge for Interval 2"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-2-grid-charge"}
+Switch                      Interval3GridCharge         "Switch on Grid Charge for Interval 3"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-3-grid-charge"}
+Switch                      Interval4GridCharge         "Switch on Grid Charge for Interval 4"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-4-grid-charge"}
+Switch                      Interval5GridCharge         "Switch on Grid Charge for Interval 5"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-5-grid-charge"}
+Switch                      Interval6GridCharge         "Switch on Grid Charge for Interval 6"         {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-6-grid-charge"}
 
-Switch                      Interval1GenCharge          "Switch on Generator Charge for Interval 1"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-1-gen-charge"}
-Switch                      Interval2GenCharge          "Switch on Generator Charge for Interval 2"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-2-gen-charge"}
-Switch                      Interval3GenCharge          "Switch on Generator Charge for Interval 3"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-3-gen-charge"}
-Switch                      Interval4GenCharge          "Switch on Generator Charge for Interval 4"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-4-gen-charge"}
-Switch                      Interval5GenCharge          "Switch on Generator Charge for Interval 5"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-5-gen-charge"}
-Switch                      Interval6GenCharge          "Switch on Generator Charge for Interval 6"    {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-6-gen-charge"}
+Switch                      Interval1GenCharge          "Switch on Generator Charge for Interval 1"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-1-gen-charge"}
+Switch                      Interval2GenCharge          "Switch on Generator Charge for Interval 2"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-2-gen-charge"}
+Switch                      Interval3GenCharge          "Switch on Generator Charge for Interval 3"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-3-gen-charge"}
+Switch                      Interval4GenCharge          "Switch on Generator Charge for Interval 4"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-4-gen-charge"}
+Switch                      Interval5GenCharge          "Switch on Generator Charge for Interval 5"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-5-gen-charge"}
+Switch                      Interval6GenCharge          "Switch on Generator Charge for Interval 6"    {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-6-gen-charge"}
 
-DateTime                    Interval1GridTime           "Time for Interval 1"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-1-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
-DateTime                    Interval2GridTime           "Time for Interval 2"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-2-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
-DateTime                    Interval3GridTime           "Time for Interval 3"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-3-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
-DateTime                    Interval4GridTime           "Time for Interval 4"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-4-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
-DateTime                    Interval5GridTime           "Time for Interval 5"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-5-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
-DateTime                    Interval6GridTime           "Time for Interval 6"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-6-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval1GridTime           "Time for Interval 1"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-1-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval2GridTime           "Time for Interval 2"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-2-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval3GridTime           "Time for Interval 3"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-3-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval4GridTime           "Time for Interval 4"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-4-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval5GridTime           "Time for Interval 5"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-5-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
+DateTime                    Interval6GridTime           "Time for Interval 6"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-6-grid-time", widget="widget:rlk_datetime_standalone"[label="Time Picker"]}
 
-Number:Dimensionless        Interval1GridCapacity       "Charge Target Interval 1"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-1-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
-Number:Dimensionless        Interval2GridCapacity       "Charge Target Interval 2"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-2-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
-Number:Dimensionless        Interval3GridCapacity       "Charge Target Interval 3"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-3-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
-Number:Dimensionless        Interval4GridCapacity       "Charge Target Interval 4"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-4-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
-Number:Dimensionless        Interval5GridCapacity       "Charge Target Interval 5"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-5-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
-Number:Dimensionless        Interval6GridCapacity       "Charge Target Interval 6"                     {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-6-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval1GridCapacity       "Charge Target Interval 1"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-1-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval2GridCapacity       "Charge Target Interval 2"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-2-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval3GridCapacity       "Charge Target Interval 3"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-3-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval4GridCapacity       "Charge Target Interval 4"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-4-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval5GridCapacity       "Charge Target Interval 5"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-5-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
+Number:Dimensionless        Interval6GridCapacity       "Charge Target Interval 6"                     {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-6-grid-capacity", widget="oh-slider-card",listWidget="oh-slider-item"[title="Target SOC",subtitle="Set % SOC"]}
 
-Number:Power                Interval1GridPowerLimit     "Max Charge Power Interval 1"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-1-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
-Number:Power                Interval2GridPowerLimit     "Max Charge Power Interval 2"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-2-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
-Number:Power                Interval3GridPowerLimit     "Max Charge Power Interval 3"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-3-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
-Number:Power                Interval4GridPowerLimit     "Max Charge Power Interval 4"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-4-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
-Number:Power                Interval5GridPowerLimit     "Max Charge Power Interval 5"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-5-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
-Number:Power                Interval6GridPowerLimit     "Max Charge Power Interval 6"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Interval-6-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval1GridPowerLimit     "Max Charge Power Interval 1"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-1-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval2GridPowerLimit     "Max Charge Power Interval 2"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-2-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval3GridPowerLimit     "Max Charge Power Interval 3"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-3-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval4GridPowerLimit     "Max Charge Power Interval 4"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-4-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval5GridPowerLimit     "Max Charge Power Interval 5"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-5-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
+Number:Power                Interval6GridPowerLimit     "Max Charge Power Interval 6"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:interval-6-grid-power-limit", listWidget="oh-slider-item"[title="Target Power Limit",subtitle="Set Limit in Watts", min=0, max=8000,step=1000]}
 
-Number:Dimensionless        BatterySOC                  "Battery SOC [%s]"                             {channel ="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Battery-SOC"}
-Number:ElectricPotential    BatteryGridVoltage          "Battery Grid Voltage"                         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Battery-grid-voltage"}
-Number:ElectricCurrent      BatteryGridCurrent          "Battery Grid Current"                         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Battery-grid-current"}
-Number:Power                BatteryGridPdower           "Battery Grid Power"                           {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Battery-grid-power"}
-Number:Temperature          BatteryTemperature          "Battery Temperatue "                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Battery-temperature"}
-Number:Temperature          InverterACTemperature       "Inverter AC Temperature"                      {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-ac-temperature"}
-Number:Temperature          InverterDCTemperature       "Inverter DC Temperature"                      {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-dc-temperature"}
-Number:Power                InverterGridPower           "Inverter Grid Power"                          {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-grid-power"}
-Number:ElectricPotential    InverterGridVoltage         "Inverter Grid Voltage"                        {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-grid-voltage"}
-Number:ElectricCurrent      InverterGridCurrent         "Inverter Grid Current"                        {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-grid-current"}
-Number:Energy               InverterSolarEnergyToday    "Inverter Energy Today"                        {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-solar-energy-today"}
-Number:Energy               InverterSolarEnergyTotal    "Inverter Enery Gross"                         {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-solar-energy-total"}
-Number:Power                InverterSolarPowerNow       "Inverter Power"                               {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-solar-power-now"}
+Number:Dimensionless        BatterySOC                  "Battery SOC [%s]"                             {channel ="sunsynk:inverter:xxx:1234567R1231234567890:battery-SOC"}
+Number:ElectricPotential    BatteryGridVoltage          "Battery Grid Voltage"                         {channel="sunsynk:inverter:xxx:1234567R1231234567890:battery-grid-voltage"}
+Number:ElectricCurrent      BatteryGridCurrent          "Battery Grid Current"                         {channel="sunsynk:inverter:xxx:1234567R1231234567890:battery-grid-current"}
+Number:Power                BatteryGridPdower           "Battery Grid Power"                           {channel="sunsynk:inverter:xxx:1234567R1231234567890:battery-grid-power"}
+Number:Temperature          BatteryTemperature          "Battery Temperatue "                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:battery-temperature"}
+Number:Temperature          InverterACTemperature       "Inverter AC Temperature"                      {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-ac-temperature"}
+Number:Temperature          InverterDCTemperature       "Inverter DC Temperature"                      {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-dc-temperature"}
+Number:Power                InverterGridPower           "Inverter Grid Power"                          {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-grid-power"}
+Number:ElectricPotential    InverterGridVoltage         "Inverter Grid Voltage"                        {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-grid-voltage"}
+Number:ElectricCurrent      InverterGridCurrent         "Inverter Grid Current"                        {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-grid-current"}
+Number:Energy               InverterSolarEnergyToday    "Inverter Energy Today"                        {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-solar-energy-today"}
+Number:Energy               InverterSolarEnergyTotal    "Inverter Enery Gross"                         {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-solar-energy-total"}
+Number:Power                InverterSolarPowerNow       "Inverter Power"                               {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-solar-power-now"}
 
-Switch                      Interval6ControlTimer       "Switch on System Mode Timer"                  {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-control-timer"}
-Number:Dimensionless        InverterControlWorkMode     "System Work Mode 0, 1 or 2"                   {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-control-work-mode", widget="oh-slider-card",listWidget="oh-slider-item"[title="Inverter Work Mode",subtitle="0 - Selling, 1 - Zero-Export or 2 - Limted to Home", min=0, max=2,step=1]}
-Number:Dimensionless        InverterControlPattern      "System Mode Energy Pattern 0 or 1"            {channel="sunsynk:inverter:a1a6340bc0:E4701229R3312211229948:Inverter-control-energy-pattern", widget="oh-slider-card",listWidget="oh-slider-item"[title="Inverter Energy Pattern",subtitle="0 - Battery or 1 - Load", min=0, max=1,step=1]}
+Switch                      Interval6ControlTimer       "Switch on System Mode Timer"                  {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-control-timer"}
+Number:Dimensionless        InverterControlWorkMode     "System Work Mode 0, 1 or 2"                   {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-control-work-mode", widget="oh-slider-card",listWidget="oh-slider-item"[title="Inverter Work Mode",subtitle="0 - Selling, 1 - Zero-Export or 2 - Limted to Home", min=0, max=2,step=1]}
+Number:Dimensionless        InverterControlPattern      "System Mode Energy Pattern 0 or 1"            {channel="sunsynk:inverter:xxx:1234567R1231234567890:inverter-control-energy-pattern", widget="oh-slider-card",listWidget="oh-slider-item"[title="Inverter Energy Pattern",subtitle="0 - Battery or 1 - Load", min=0, max=1,step=1]}
 ```
 
 ## DateTime Widget
@@ -198,6 +193,7 @@ Number:Dimensionless        InverterControlPattern      "System Mode Energy Patt
 The items file above adds Metadata: Default Standalone widget: [rlk_datetime_standalone](https://community.openhab.org/t/datetime-standalone-widget/127966) to the DateTime items. Only the time portion of the DateTime item is important.
 
 Be sure to understand the time zone set up for the inverter, this can either be synchronised with Sun Synk servers, which in the UK at least applies daylight saving, or free-wheeling locally. The times set in the DateTime items using the widget are not adjusted to any time zone and are sent to the SunSynk API as Strings where they will be applied directly to your inverter. This is in contrast to other solar / energy  APIs that use Zulu (GMT) time.
+
 ## Installation
 
 Place the `.jar` file into your `addons` directory. See the "Through manually provided add-on" section of [Installation of Add-ons](https://www.openhab.org/docs/configuration/addons.html).
