@@ -7,9 +7,9 @@ This binding is used to connect your openHAB system with Sun Synk Connect (where
 
 ## Introduction
 
-You will require to have installed a Sun Synk inverter with a WiFi Data logger [e-linter](https://www.e-linter.com/) connected to the Sun Synk App or Connect. See [Data Logger set up](https://www.sunsynk.org/_files/ugd/39fbfb_a325b6884e684c4ba1a3ad80afd5da20.pdf) or [Sun Synk Web](https://www.sunsynk.org/remote-monitoring). It is recommended, but not  necessary that the "data interval" of your Gateway is set via Sun Synk Connect to 60s for best time latency. If you do not have that setting avaailable you can request it set via Sun Synk or your installer or you can ask for an [User Level Access Change Request](https://www.sunsynk.org/remote-monitoring)
+You will require to have installed a Sun Synk inverter with a WiFi Data logger [e-linter](https://www.e-linter.com/) connected to the Sun Synk App or Connect. See [Data Logger set up](https://www.sunsynk.org/_files/ugd/39fbfb_a325b6884e684c4ba1a3ad80afd5da20.pdf) or [Sun Synk Web](https://www.sunsynk.org/remote-monitoring). It is recommended, but not  necessary that the "data interval" of your Gateway is set via Sun Synk Connect to 60s for best time latency. If you do not have that setting available you can request it set via Sun Synk or your installer or you can ask for an [User Level Access Change Request](https://www.sunsynk.org/remote-monitoring)
 
-This binding uses your Sun Synk Connect credentials to access Sun Synk's web services via an OpenHAB Bridge (SunSynk Account). The bridge manages the account authentication and the discovery of SunSynk Inverter and Plant Things. Only the Inverter Thing is currently supported.
+This binding uses your Sun Synk Connect credentials to access Sun Synk's web services via an OpenHAB Bridge (SunSynk Account). The bridge manages the account authentication and the discovery of SunSynk Inverters.
 
 Acknowledgements:
 - [Power Forum](https://powerforum.co.za/topic/12604-sunsynk-wifi-dongle-hacking/page/3/)
@@ -23,7 +23,6 @@ Acknowledgements:
 |----------------|---------------|-----------------|
 |SunSynk Account | Bridge Thing  | account         |
 |SunSynk Inverter| Thing         | inverter        |
-|SunSynk Plant   | Thing         | (TO DO)         |
 
 ## Discovery
 
@@ -37,7 +36,7 @@ When using the UI Scan service all the parameters for an Inverter Thing are disc
 
 - Inverter Serial maps to the Sun Synk Connect inverter serial number
 - Inverter Name maps to the Sun Synk Connect inverter alias
-- Refresh time (advanced) default 60s; determines the interval between polls of Sun Synk Connect. A value above 60 is enforced. When setting this remember your inverter values are only published to Sun Synk Connect at the rate set by "data interval".
+- Refresh time (advanced) default 60s; determines the interval between polls of Sun Synk Connect. A value above 60 is enforced. When setting this remember your inverter values are only published by Sun Synk Connect at the rate set by "data interval".
 
 The refresh rate is limited to once every 60s to prevent too many requests from the Sun Synk Connect API, although there is no rate limit, the Sun Synk data is fully refreshed at the "data interval" set in Sun Synk Connect, at best that is every 60s. This can mean the data in openHAB is more than 1 minute delayed from real-time. Commands sent (from openHAB) to Sun Synk are buffered up until the next refresh interval and as they take a while to propagate through to your inverter, some channels are not refreshed (read back) from Sun Synk Connect until the next minute. 
 
